@@ -13,7 +13,11 @@ export const swaggerBaseDefinition = {
 
 const options: swaggerJSDoc.Options = {
   definition: swaggerBaseDefinition,
-  apis: [path.join(__dirname, "..", "routes", "rest", "*.ts")],
+  // Support both TS (dev) and JS (built) route files
+  apis: [
+    path.join(__dirname, "..", "routes", "rest", "*.ts"),
+    path.join(__dirname, "..", "routes", "rest", "*.js"),
+  ],
 };
 
 export const swaggerBaseSpec = swaggerJSDoc(options);
