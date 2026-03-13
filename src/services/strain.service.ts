@@ -48,10 +48,12 @@ export type FieldType =
 export function getFieldTypes(): Record<string, FieldType> {
   const all = getAllStrains();
   const fieldTypes: Record<string, FieldType> = {};
+  const invalidKeys = new Set<string>();
 
   for (const strain of all) {
     for (const [key, value] of Object.entries(strain)) {
       if (value === null) continue;
+      if (invalidKeys.has(key)) continue;
 
       if (Array.isArray(value)) {
         const first = value[0];
@@ -61,6 +63,10 @@ export function getFieldTypes(): Record<string, FieldType> {
           fieldTypes[key] = "number[]";
         } else if (typeof first === "boolean") {
           fieldTypes[key] = "boolean[]";
+        } else if (first !== undefined) {
+          // Mixed / unsupported array element type – drop this key entirely.
+          delete fieldTypes[key];
+          invalidKeys.add(key);
         }
       } else if (typeof value === "string") {
         fieldTypes[key] = "string";
@@ -68,6 +74,10 @@ export function getFieldTypes(): Record<string, FieldType> {
         fieldTypes[key] = "number";
       } else if (typeof value === "boolean") {
         fieldTypes[key] = "boolean";
+      } else {
+        // Object or any other unsupported shape – ensure this key is never exposed.
+        delete fieldTypes[key];
+        invalidKeys.add(key);
       }
     }
   }
