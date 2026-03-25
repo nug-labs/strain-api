@@ -27,4 +27,29 @@ const router = Router();
  */
 router.get("/strains", StrainsController.getAll);
 
+/**
+ * @openapi
+ * /api/v1/strains/match:
+ *   get:
+ *     summary: Match a strain by normalized name/AKA
+ *     description: >
+ *       Normalization is lowercase + remove all whitespace.
+ *       Matches against `name` and all `akas`.
+ *     tags:
+ *       - Strains
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: Purple mimosa
+ *     responses:
+ *       200:
+ *         description: Matching strain object.
+ *       404:
+ *         description: No match found.
+ */
+router.get("/strains/match", StrainsController.matchByName);
+
 export default router;

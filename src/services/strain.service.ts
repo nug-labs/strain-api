@@ -4,6 +4,11 @@ import { StrainArraySchema, Strain } from "../schemas/strain.schema";
 import { logger, logError } from "../utils/logger";
 
 let strainsCache: Strain[] | null = null;
+let strainsNormalizedIndex: Map<string, Strain> | null = null;
+
+function normalizeStrainKey(input: string): string {
+  return input.toLowerCase().replace(/\s+/g, "");
+}
 
 function loadStrainsFromDisk(): Strain[] {
   const dataPath = path.join(__dirname, "..", "..", "assets", "data.json");
@@ -35,6 +40,38 @@ export function getAllStrains(): Strain[] {
     }
   }
   return strainsCache;
+}
+
+function getNormalizedIndex(): Map<string, Strain> {
+  if (strainsNormalizedIndex) return strainsNormalizedIndex;
+
+  const all = getAllStrains();
+  const index = new Map<string, Strain>();
+
+  for (const strain of all) {
+    const name = typeof strain.name === "string" ? strain.name : null;
+    if (name) {
+      const key = normalizeStrainKey(name);
+      if (!index.has(key)) index.set(key, strain);
+    }
+
+    const akas = Array.isArray(strain.akas)
+      ? (strain.akas.filter((x): x is string => typeof x === "string") as string[])
+      : [];
+    for (const aka of akas) {
+      const key = normalizeStrainKey(aka);
+      if (!index.has(key)) index.set(key, strain);
+    }
+  }
+
+  logger.info({ msg: "Built normalized strain index", count: index.size });
+  strainsNormalizedIndex = index;
+  return index;
+}
+
+export function findStrainByNormalizedName(input: string): Strain | null {
+  const normalized = normalizeStrainKey(input);
+  return getNormalizedIndex().get(normalized) ?? null;
 }
 
 export type FieldType =
