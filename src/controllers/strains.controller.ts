@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { findStrainByNormalizedName, getAllStrains } from "../services/strain.service";
+import { findStrainByNormalizedName, getAllStrains, getNormalizationRules } from "../services/strain.service";
 
 export class StrainsController {
   static getAll(_req: Request, res: Response) {
@@ -24,5 +24,10 @@ export class StrainsController {
     }
 
     res.json(match);
+  }
+
+  static getRules(_req: Request, res: Response) {
+    const rules = getNormalizationRules();
+    res.json(rules);
   }
 }

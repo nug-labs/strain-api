@@ -52,4 +52,22 @@ router.get("/strains", StrainsController.getAll);
  */
 router.get("/strains/match", StrainsController.matchByName);
 
+/**
+ * @openapi
+ * /api/v1/strains/rules:
+ *   get:
+ *     summary: Get canonical normalization rules
+ *     description: Returns the normalization rules JSON used by SDK wrappers and core lookups.
+ *     tags:
+ *       - Strains
+ *     responses:
+ *       200:
+ *         description: Normalization rules payload.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
+router.get("/strains/rules", StrainsController.getRules);
+
 export default router;

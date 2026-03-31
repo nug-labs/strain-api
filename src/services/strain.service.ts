@@ -5,6 +5,7 @@ import { logger, logError } from "../utils/logger";
 
 let strainsCache: Strain[] | null = null;
 let strainsNormalizedIndex: Map<string, Strain> | null = null;
+let rulesCache: Record<string, unknown> | null = null;
 
 function normalizeStrainKey(input: string): string {
   return input.toLowerCase().replace(/\s+/g, "");
@@ -40,6 +41,19 @@ export function getAllStrains(): Strain[] {
     }
   }
   return strainsCache;
+}
+
+export function getNormalizationRules(): Record<string, unknown> {
+  if (!rulesCache) {
+    const rulesPath = path.join(__dirname, "..", "..", "assets", "rules.json");
+    const raw = fs.readFileSync(rulesPath, "utf-8");
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new Error("Invalid normalization rules payload");
+    }
+    rulesCache = parsed as Record<string, unknown>;
+  }
+  return rulesCache;
 }
 
 function getNormalizedIndex(): Map<string, Strain> {
